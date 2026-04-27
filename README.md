@@ -1,0 +1,82 @@
+# CrisisBridge AI
+
+Gemini-powered emergency response and crisis coordination prototype for hospitality venues.
+
+## Challenge Track
+`[Rapid Crisis Response] Accelerated Emergency Response and Crisis Coordination in Hospitality`
+
+## What It Does
+CrisisBridge AI gives guests a QR-first emergency report page and gives hotel staff a command dashboard. Gemini can triage messy reports into structured severity, incident type, next actions and responder messages.
+
+## Google AI / Cloud Usage
+- Gemini API or Vertex AI Gemini for incident triage and responder brief generation.
+- Google Cloud Run for containerized deployment.
+- Planned production extensions: Firebase Cloud Firestore for realtime incident state and Google Maps Platform for responder routing.
+
+## Local Run
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Open:
+- `http://localhost:8080`
+- Health check: `http://localhost:8080/api/health`
+
+If `GEMINI_API_KEY` is not configured, the app uses a transparent fallback triage engine so the demo still works.
+
+## Tests
+```bash
+npm test
+```
+
+## Google Cloud Run Deploy
+This deployment uses:
+- Cloud Run for the Node/Express container.
+- Google Gemini API for AI triage through `GEMINI_API_KEY`.
+- Secret Manager for `GEMINI_API_KEY` and `DEMO_ADMIN_TOKEN`.
+- Cloud Logging/Monitoring through Cloud Run defaults.
+
+Set these values in your shell:
+
+```bash
+export PROJECT_ID=your-google-cloud-project
+export GEMINI_API_KEY=your-google-ai-studio-key
+export DEMO_ADMIN_TOKEN=a-long-random-dashboard-token
+```
+
+Deploy from this directory with the helper script:
+
+```bash
+./scripts/deploy-google-cloud.sh
+```
+
+Or deploy manually:
+
+```bash
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com generativelanguage.googleapis.com
+printf '%s' "$GEMINI_API_KEY" | gcloud secrets create crisisbridge-gemini-api-key --data-file=-
+printf '%s' "$DEMO_ADMIN_TOKEN" | gcloud secrets create crisisbridge-demo-admin-token --data-file=-
+```
+
+```bash
+gcloud run deploy crisisbridge-ai \
+  --source . \
+  --region asia-south1 \
+  --allow-unauthenticated \
+  --set-env-vars GEMINI_MODEL=gemini-2.5-flash \
+  --set-secrets GEMINI_API_KEY=crisisbridge-gemini-api-key:latest,DEMO_ADMIN_TOKEN=crisisbridge-demo-admin-token:latest
+```
+
+After deployment, use the Cloud Run service URL as the live prototype link.
+Guests can submit reports publicly. Staff dashboard incident listing, status changes, and demo reset require the dashboard token.
+
+## Submission Answers
+- Google AI model/service: Gemini API / Vertex AI Gemini, Google Cloud Run.
+- Deployed on Google Cloud: Yes, after Cloud Run deployment.
+- Demo video: use `docs/demo-script.md`.
+- Deck: use `docs/deck-outline.md` with the supplied PPT template.
+
+## Safety Note
+This is a coordination prototype, not a replacement for trained emergency services. Production use would require venue-specific SOPs, compliance review, data retention controls, offline fallback and human confirmation.

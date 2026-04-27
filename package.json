@@ -1,0 +1,18 @@
+{
+  "name": "crisisbridge-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Gemini-powered rapid crisis response prototype for hospitality venues.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "NODE_ENV=production node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@google/genai": "^1.30.0",
+    "express": "^5.1.0",
+    "nanoid": "^5.1.6"
+  },
+  "devDependencies": {}
+}
