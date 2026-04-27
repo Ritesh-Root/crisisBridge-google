@@ -9,127 +9,182 @@
   <body>
     <header class="topbar">
       <div class="brand">
-        <div class="mark">CB</div>
+        <div class="mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         <div>
           <p class="eyebrow">Rapid Crisis Response</p>
           <h1>CrisisBridge AI</h1>
+          <p class="brand-subtitle">Gemini-powered command bridge for hospitality emergencies</p>
         </div>
       </div>
-      <div class="status-pill" id="aiStatus">Checking AI</div>
+      <div class="system-status" aria-label="System status">
+        <div class="status-pill" id="aiStatus">Checking AI</div>
+        <div class="status-pill status-live">Cloud Run</div>
+      </div>
     </header>
 
-    <main class="layout">
-      <section class="guest-panel panel" aria-labelledby="guestTitle">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Guest QR Flow</p>
-            <h2 id="guestTitle">Report an Emergency</h2>
-          </div>
-          <span class="chip">No app install</span>
+    <main>
+      <section class="command-hero" aria-labelledby="heroTitle">
+        <div>
+          <p class="eyebrow">Venue Operations Console</p>
+          <h2 id="heroTitle">Turn guest reports into responder-ready action.</h2>
+          <p>Capture an SOS, triage it with Gemini, assign the right team, and keep the command desk aligned from one focused screen.</p>
         </div>
-
-        <form id="incidentForm" class="form-grid">
-          <label>
-            Name
-            <input name="reporterName" value="Guest" autocomplete="name">
-          </label>
-          <label>
-            Room / Area
-            <input name="room" value="Room 208 corridor" required>
-          </label>
-          <label>
-            Zone
-            <select name="zone" required>
-              <option>Lobby</option>
-              <option>Floor 2</option>
-              <option selected>Floor 3</option>
-              <option>Kitchen</option>
-              <option>Parking</option>
-              <option>Poolside</option>
-            </select>
-          </label>
-          <label>
-            Assistance Needed
-            <select name="needs">
-              <option>Evacuation guidance</option>
-              <option>Medical support</option>
-              <option>Security support</option>
-              <option>Maintenance inspection</option>
-              <option>Translation support</option>
-            </select>
-          </label>
-          <label class="wide">
-            What is happening?
-            <textarea name="description" rows="5" required>Smoke is coming from the corridor and people are coughing near the staircase.</textarea>
-          </label>
-
-          <div class="button-row wide">
-            <button type="submit" class="primary">Send SOS Report</button>
-            <button type="button" id="resetDemo">Reset Demo</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="command-panel panel" aria-labelledby="commandTitle">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Staff Command Center</p>
-            <h2 id="commandTitle">Live Incidents</h2>
-          </div>
-          <span class="chip" id="incidentCount">0 active</span>
-        </div>
-
-        <div class="metrics">
-          <div>
-            <span>Critical/High</span>
-            <strong id="urgentCount">0</strong>
-          </div>
-          <div>
-            <span>Assigned</span>
-            <strong id="assignedCount">0</strong>
-          </div>
-          <div>
-            <span>AI Source</span>
-            <strong id="sourceCount">-</strong>
-          </div>
-        </div>
-
-        <div class="workspace">
-          <div>
-            <div id="incidentList" class="incident-list"></div>
-          </div>
-
-          <aside class="detail-card" id="incidentDetail">
-            <div class="empty">Select an incident to view AI triage.</div>
-          </aside>
+        <div class="hero-flow" aria-label="Response workflow">
+          <span>Guest SOS</span>
+          <span>Gemini Triage</span>
+          <span>Staff Action</span>
         </div>
       </section>
 
-      <section class="map-panel panel" aria-labelledby="mapTitle">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Venue Map</p>
-            <h2 id="mapTitle">Response Zones</h2>
+      <section class="layout">
+        <section class="guest-panel panel" aria-labelledby="guestTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Guest QR Flow</p>
+              <h2 id="guestTitle">Report an Emergency</h2>
+            </div>
+            <span class="chip">No app install</span>
           </div>
-          <span class="chip">Simulated hotel</span>
-        </div>
-        <div class="map-wrap">
-          <svg id="venueMap" viewBox="0 0 100 80" role="img" aria-label="Venue response zones">
-            <rect x="4" y="8" width="92" height="64" rx="4" class="building"></rect>
-            <rect x="8" y="54" width="28" height="14" rx="2" class="zone" data-zone="Lobby"></rect>
-            <rect x="38" y="36" width="24" height="16" rx="2" class="zone" data-zone="Floor 2"></rect>
-            <rect x="50" y="14" width="28" height="16" rx="2" class="zone" data-zone="Floor 3"></rect>
-            <rect x="68" y="54" width="24" height="14" rx="2" class="zone" data-zone="Kitchen"></rect>
-            <rect x="8" y="14" width="26" height="18" rx="2" class="zone" data-zone="Parking"></rect>
-            <rect x="70" y="18" width="20" height="18" rx="2" class="zone" data-zone="Poolside"></rect>
-            <text x="22" y="63">Lobby</text>
-            <text x="50" y="45">Floor 2</text>
-            <text x="64" y="24">Floor 3</text>
-            <text x="80" y="63">Kitchen</text>
-            <text x="21" y="25">Parking</text>
-            <text x="80" y="29">Pool</text>
-          </svg>
-        </div>
+
+          <form id="incidentForm" class="form-grid">
+            <label>
+              Name
+              <input name="reporterName" value="Guest" autocomplete="name" aria-label="Reporter name">
+            </label>
+            <label>
+              Room / Area
+              <input name="room" value="Room 208 corridor" required aria-label="Room or area">
+            </label>
+            <label>
+              Zone
+              <select name="zone" required aria-label="Venue zone">
+                <option>Lobby</option>
+                <option>Floor 2</option>
+                <option selected>Floor 3</option>
+                <option>Kitchen</option>
+                <option>Parking</option>
+                <option>Poolside</option>
+              </select>
+            </label>
+            <label>
+              Assistance Needed
+              <select name="needs" aria-label="Assistance needed">
+                <option>Evacuation guidance</option>
+                <option>Medical support</option>
+                <option>Security support</option>
+                <option>Maintenance inspection</option>
+                <option>Translation support</option>
+              </select>
+            </label>
+            <label class="wide">
+              What is happening?
+              <textarea name="description" rows="5" required aria-label="Incident description">Smoke is coming from the corridor and people are coughing near the staircase.</textarea>
+            </label>
+
+            <div class="button-row wide">
+              <button type="submit" class="primary">Send SOS Report</button>
+              <button type="button" id="resetDemo">Reset Demo</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="command-panel panel" aria-labelledby="commandTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Staff Command Center</p>
+              <h2 id="commandTitle">Live Incidents</h2>
+            </div>
+            <span class="chip" id="incidentCount">0 active</span>
+          </div>
+
+          <div class="metrics">
+            <div class="metric-card urgent">
+              <span>Critical/High</span>
+              <strong id="urgentCount">0</strong>
+            </div>
+            <div class="metric-card assigned">
+              <span>Assigned</span>
+              <strong id="assignedCount">0</strong>
+            </div>
+            <div class="metric-card ai-source">
+              <span>AI Source</span>
+              <strong id="sourceCount">-</strong>
+            </div>
+          </div>
+
+          <div class="workspace">
+            <div>
+              <div id="incidentList" class="incident-list"></div>
+            </div>
+
+            <aside class="detail-card" id="incidentDetail">
+              <div class="empty">Select an incident to view AI triage.</div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="map-panel panel" aria-labelledby="mapTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Venue Map</p>
+              <h2 id="mapTitle">Response Zones</h2>
+            </div>
+            <span class="chip" id="lastSynced">Syncing</span>
+          </div>
+          <div class="map-wrap">
+            <svg id="venueMap" viewBox="0 0 100 80" role="img" aria-label="Venue response zones">
+              <rect x="4" y="8" width="92" height="64" rx="4" class="building"></rect>
+              <rect x="8" y="54" width="28" height="14" rx="2" class="zone" data-zone="Lobby"></rect>
+              <rect x="38" y="36" width="24" height="16" rx="2" class="zone" data-zone="Floor 2"></rect>
+              <rect x="50" y="14" width="28" height="16" rx="2" class="zone" data-zone="Floor 3"></rect>
+              <rect x="68" y="54" width="24" height="14" rx="2" class="zone" data-zone="Kitchen"></rect>
+              <rect x="8" y="14" width="26" height="18" rx="2" class="zone" data-zone="Parking"></rect>
+              <rect x="70" y="18" width="20" height="18" rx="2" class="zone" data-zone="Poolside"></rect>
+              <text x="22" y="63">Lobby</text>
+              <text x="50" y="45">Floor 2</text>
+              <text x="64" y="24">Floor 3</text>
+              <text x="80" y="63">Kitchen</text>
+              <text x="21" y="25">Parking</text>
+              <text x="80" y="29">Pool</text>
+            </svg>
+            <div class="map-legend" aria-label="Severity legend">
+              <span><i class="dot Critical"></i> Critical / High</span>
+              <span><i class="dot Medium"></i> Medium</span>
+              <span><i class="dot Low"></i> Low</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="assistant-panel panel" aria-labelledby="assistantTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Gemini Response Coach</p>
+              <h2 id="assistantTitle">Ask for staff guidance</h2>
+            </div>
+            <span class="chip" id="assistantSource">Ready</span>
+          </div>
+          <div class="assistant-body">
+            <div id="assistantMessages" class="assistant-messages" aria-live="polite">
+              <div class="assistant-message ai">
+                <strong>CrisisBridge AI</strong>
+                <p>Select an incident, then ask what to brief staff, guests, or responders. I keep answers short and operational.</p>
+              </div>
+            </div>
+            <div class="quick-prompts" aria-label="Suggested assistant prompts">
+              <button type="button" data-question="What should the duty manager do in the next two minutes?">Duty manager</button>
+              <button type="button" data-question="Write a short responder handoff brief for this incident.">Responder brief</button>
+              <button type="button" data-question="What should staff tell nearby guests?">Guest message</button>
+            </div>
+            <form id="assistantForm" class="assistant-form">
+              <input id="assistantQuestion" name="question" placeholder="Ask Gemini for a concise response plan..." autocomplete="off">
+              <button type="submit" class="primary">Ask Gemini</button>
+            </form>
+          </div>
+        </section>
       </section>
     </main>
 

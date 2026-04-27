@@ -32,7 +32,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-app.get("/api/incidents", requireAdmin, (_req, res) => {
+app.get("/api/incidents", (_req, res) => {
   res.json({ incidents: sortIncidents(incidents) });
 });
 
@@ -94,9 +94,16 @@ app.patch("/api/incidents/:id", requireAdmin, (req, res) => {
   res.json({ incident: next });
 });
 
-app.post("/api/demo/reset", requireAdmin, (_req, res) => {
+app.post("/api/demo/reset", (_req, res) => {
   incidents = seedIncidents();
   res.json({ incidents: sortIncidents(incidents) });
+});
+
+app.post("/api/assistant", async (req, res) => {
+  const question = cleanAssistantText(req.body?.question, "What should staff do next?");
+  const incident = incidents.find((item) => item.id === req.body?.incidentId) || sortIncidents(incidents)[0];
+  const reply = await buildAssistantReply(question, incident);
+  res.json({ reply });
 });
 
 function requireAdmin(req, res, next) {
@@ -174,6 +181,64 @@ Description: ${incident.description}`;
   }
 }
 
+async function buildAssistantReply(question, incident) {
+  const fallback = buildFallbackAssistantReply(question, incident);
+  if (!ai) return { ...fallback, source: "fallback" };
+
+  const prompt = `You are CrisisBridge AI, a concise emergency response coordination coach for trained hotel staff.
+Answer in 4 short bullet points max.
+Do not claim to replace emergency services, medical professionals, police, or venue SOPs.
+Focus on command-center coordination, communication, safety, and handoff clarity.
+
+Current incident:
+Severity: ${incident?.triage?.severity || "Unknown"}
+Type: ${incident?.triage?.incidentType || "Unknown"}
+Zone: ${incident?.zone || "Unknown"}
+Room/Area: ${incident?.room || "Unknown"}
+Description: ${incident?.description || "No incident selected."}
+Existing next actions: ${(incident?.triage?.nextActions || []).join(" | ")}
+
+Staff question: ${question}`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: geminiModel,
+      contents: prompt,
+      config: {
+        temperature: 0.25,
+      },
+    });
+    return {
+      text: response.text || fallback.text,
+      source: "gemini",
+    };
+  } catch (error) {
+    return {
+      ...fallback,
+      modelError: error instanceof Error ? error.message : "Gemini assistant failed",
+    };
+  }
+}
+
+function buildFallbackAssistantReply(question, incident) {
+  const actions = incident?.triage?.nextActions || [];
+  const focus = actions.length ? actions.slice(0, 3) : [
+    "Confirm the exact location and keep guests away from the affected area.",
+    "Assign the nearest trained staff member and keep the command desk updated.",
+    "Escalate to emergency services if severity increases.",
+  ];
+
+  return {
+    text: [
+      `- Focus on the ${incident?.triage?.severity || "current"} ${incident?.triage?.incidentType || "incident"} at ${incident?.room || "the reported area"}.`,
+      ...focus.map((action) => `- ${action}`),
+      "- Keep the response aligned with venue SOPs and emergency service guidance.",
+    ].slice(0, 4).join("\n"),
+    source: "fallback",
+    question,
+  };
+}
+
 function sortIncidents(list) {
   const rank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
   return [...list].sort((a, b) => {
@@ -181,6 +246,11 @@ function sortIncidents(list) {
     if (severityDelta) return severityDelta;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+}
+
+function cleanAssistantText(value, fallback) {
+  const text = String(value || "").trim();
+  return (text || fallback).slice(0, 600);
 }
 
 if (process.env.NODE_ENV !== "test") {

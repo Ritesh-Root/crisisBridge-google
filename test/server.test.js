@@ -25,17 +25,38 @@ async function withServer(callback) {
   }
 }
 
-test("admin token protects incident listing", async () => {
+test("incident listing stays public for the live demo", async () => {
   await withServer(async (baseUrl) => {
-    const denied = await fetch(`${baseUrl}/api/incidents`);
+    const response = await fetch(`${baseUrl}/api/incidents`);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.ok(Array.isArray(body.incidents));
+  });
+});
+
+test("admin token protects staff incident updates", async () => {
+  await withServer(async (baseUrl) => {
+    const incidents = await fetch(`${baseUrl}/api/incidents`).then((response) => response.json());
+    const id = incidents.incidents[0].id;
+
+    const denied = await fetch(`${baseUrl}/api/incidents/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Responding" }),
+    });
     assert.equal(denied.status, 401);
 
-    const allowed = await fetch(`${baseUrl}/api/incidents`, {
-      headers: { Authorization: "Bearer test-dashboard-token" },
+    const allowed = await fetch(`${baseUrl}/api/incidents/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer test-dashboard-token",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "Responding" }),
     });
     assert.equal(allowed.status, 200);
     const body = await allowed.json();
-    assert.ok(Array.isArray(body.incidents));
+    assert.equal(body.incident.status, "Responding");
   });
 });
 
@@ -55,5 +76,20 @@ test("guest incident submission stays public", async () => {
     assert.equal(response.status, 201);
     const body = await response.json();
     assert.equal(body.incident.triage.severity, "High");
+  });
+});
+
+test("assistant endpoint returns fallback guidance without Gemini credentials", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/api/assistant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: "What should staff do next?" }),
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.reply.source, "fallback");
+    assert.match(body.reply.text, /venue SOPs|Confirm|Focus/);
   });
 });

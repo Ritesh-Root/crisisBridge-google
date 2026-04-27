@@ -8,8 +8,26 @@ Gemini-powered emergency response and crisis coordination prototype for hospital
 ## What It Does
 CrisisBridge AI gives guests a QR-first emergency report page and gives hotel staff a command dashboard. Gemini can triage messy reports into structured severity, incident type, next actions and responder messages.
 
+## What Problem It Solves
+Hotels often handle emergencies through scattered phone calls, front-desk notes, staff chats and delayed responder handoffs. That makes it hard to know what is urgent, which team owns the response, what guests should be told and what responders need to know first.
+
+CrisisBridge AI creates one command bridge:
+- Guests submit an emergency report without installing an app.
+- Gemini converts the report into structured triage.
+- Staff see the incident, severity, zone, next actions and responder brief in one dashboard.
+- The Gemini Response Coach can answer staff questions such as what to do next, what to tell guests and how to brief responders.
+
+## How It Works
+1. A guest submits a report with room/area, zone, assistance needed and description.
+2. The Cloud Run API normalizes the incident and sends the report to Gemini.
+3. Gemini returns severity, incident type, summary, next actions, guest message and responder brief.
+4. The command dashboard shows live incidents, venue zone highlights and AI triage details.
+5. Staff can ask the Gemini Response Coach for concise coordination guidance.
+6. Staff-only actions such as status changes and team assignment require the dashboard token.
+
 ## Google AI / Cloud Usage
 - Gemini API or Vertex AI Gemini for incident triage and responder brief generation.
+- Gemini Response Coach for concise staff Q&A around the selected incident.
 - Google Cloud Run for containerized deployment.
 - Planned production extensions: Firebase Cloud Firestore for realtime incident state and Google Maps Platform for responder routing.
 
